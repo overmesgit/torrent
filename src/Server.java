@@ -27,7 +27,6 @@ public class Server {
                 OutputStream sout = socket.getOutputStream();
 
                 String currentPeer = socket.getRemoteSocketAddress().toString().substring(1);
-                String ip = currentPeer.split(":")[0];
                 String request = readDataFromInput(sin, 1).trim();
                 System.out.println(String.format("Connected: %s Request: %s", currentPeer, request));
 
@@ -40,7 +39,7 @@ public class Server {
 
                 if (request.split(":")[0].equals("register")) {
                     answer = "registered";
-                    peers.put(ip + ":" + request.split(":")[1], "peer");
+                    peers.put(currentPeer, "peer");
                     System.out.println(String.format("Answer: %s", answer));
                     sout.write(answer.getBytes(Charset.forName("UTF-8")));
                 }

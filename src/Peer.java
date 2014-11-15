@@ -1,4 +1,5 @@
 import java.io.*;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.Charset;
@@ -12,9 +13,10 @@ import java.util.List;
 public class Peer {
     HashMap<Integer, HashMap<Integer, String>> dataToShare = new HashMap<>();
     int peerPort = 50506;
+    private int serverPort = 50505;
+    private String serverIp = "127.0.0.1";
 
     public static void main(String[] args) throws IOException {
-        int serverPort = 50505;
         String host = "127.0.0.1";
 
         String testData = "что же ты делаешь? почему не спишь? почему заснуть не можешь?";
@@ -137,14 +139,11 @@ public class Peer {
     }
 
     public void registerPeer() throws IOException {
-        int serverPort = 50505;
-        String host = "127.0.0.1";
-
-        Socket socket = new Socket(host, serverPort);
+        Socket socket = new Socket(serverIp, serverPort, InetAddress.getByName("0.0.0.0"), peerPort);
         InputStream sin = socket.getInputStream();
         OutputStream sout = socket.getOutputStream();
 
-        sout.write(String.format("register:%s\n", peerPort).getBytes(Charset.forName("UTF-8")));
+        sout.write(String.format("register\n", peerPort).getBytes(Charset.forName("UTF-8")));
         socket.close();
         System.out.println("Register");
     }
