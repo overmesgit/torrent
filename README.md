@@ -5,6 +5,9 @@
 Передача всех данных в текстовом формате в кодировке utf-8.
 Все передаваемые данные строки.
 
+Сервер находится по адресу 185.53.130.222:50505
+Попробуйте закачать файл -1419219989:-1299459300:965287967:1026612457:-1757314556:151251897:-1716523059:741387148:-1491044468:407405590:1495891343
+
 Существуе 4 основные сущности:
 1. Server (регистрирует Peer, хранит их список и передает по запросу Downloader'ам)
 2. Peer (создает Torrent file, регистрируется на сервере и производит раздачу данных)
@@ -55,7 +58,7 @@ hash:sub_data_hash_1: ……. :sub_data_hash_n
 
 Спецификация хэш функции:
 
-public ArrayList<String> splitDataToPeaces(String s) {
+    public ArrayList<String> splitDataToPeaces(String s) {
         int peacesCount = 10;
         ArrayList<String> result = new ArrayList<String>();
         int step = (int)Math.round(Math.ceil((float)s.length()/peacesCount));
