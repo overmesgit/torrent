@@ -57,11 +57,10 @@ public class Peer {
             if (requestType == 2) {
                 String answer = null;
                 if (checkShareData(splitRequest[0])) {
-                    answer = String.format("%s:%s:%s\n", splitRequest[0].trim(), splitRequest[1].trim(), getDataPeace(splitRequest[0], splitRequest[1]));
+                    answer = String.format("%s:%s:%s\nstop\n", splitRequest[0].trim(), splitRequest[1].trim(), getDataPeace(splitRequest[0], splitRequest[1]));
                 } else {
                     answer = String.format("%s:%s\n", splitRequest[0].trim(), false);
                 }
-
                 System.out.println(String.format("Answer %s", answer));
                 sout.write(answer.getBytes(Charset.forName("UTF-8")));
             }

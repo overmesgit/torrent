@@ -63,7 +63,7 @@ public class Downloader {
 
         System.out.println(String.format("Send Request to %s for %s:%s", hostData, hash, subHash));
         sout.write(String.format("%s:%s\n", hash, subHash).getBytes(Charset.forName("UTF-8")));
-        String data = readDataFromInput(sin, 1);
+        String data = readDataFromInput(sin, 1000);
         System.out.println(String.format("Received Answer from %s:  %s", hostData, data));
         return data;
     }

@@ -36,13 +36,13 @@ hash:sub_data_hash_1: ……. :sub_data_hash_n
 	получает ответ (hash:true\n) or (hash:false\n)
 запрашивает у пиров часть данных по хэшу
 	запрос (hash:sub_hash_of_data\n)
-    ответ (hash:sub_hash_of_data:ДАННЫЕ) or (hash:false\n)
+    ответ (hash:sub_hash_of_data:ДАННЫЕ\nstop\n) or (hash:false\n)
 
 **Peer:**
 Регистрируется на сервере, посылая сообщение с порта на котором будут приниматься клиенты “register\n”
 слушает входящие сообщения
 получает хэш данных(hash\n) и отвечает об их наличии (hash:true\n) or (hash:false\n)
-отдает данные по определенному хэшу (hash:sub_data_hash\n)
+отдает данные по определенному хэшу (hash:sub_data_hash\nstop\n)
 
 Это позволит вам запустить два клиента и раздать самому себе какие-нибудь данные.
 
