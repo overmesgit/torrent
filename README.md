@@ -1,4 +1,4 @@
-Учебная реализация BitTorrent протокола
+Учебная реализация подобия BitTorrent протокола
 Принципы работы взяты с https://ru.wikipedia.org/wiki/BitTorrent_(%D0%BF%D1%80%D0%BE%D1%82%D0%BE%D0%BA%D0%BE%D0%BB)
 
 Как это работает у меня:
