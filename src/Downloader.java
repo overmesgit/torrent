@@ -1,4 +1,5 @@
 import java.io.*;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -11,13 +12,18 @@ import java.util.Random;
  */
 public class Downloader {
     HashMap<Integer, HashMap<Integer, String>> dataToShare = new HashMap<>();
+    private String serverIp;
+    private int serverPort;
 
     public static void main(String[] args) throws IOException {
+
         Downloader downloader = new Downloader();
-        downloader.runDownloader(args[0]);
+        downloader.runDownloader(args[0], args[1], args[2]);
     }
 
-    public void runDownloader(String torrentFile) throws IOException {
+    public void runDownloader(String serverIp, String serverPort, String torrentFile) throws IOException {
+        this.serverIp = serverIp;
+        this.serverPort = Integer.parseInt(serverPort);
         List<String> peers = getPeers();
 
         String[] splitTorrenFile = torrentFile.split(":");
@@ -90,10 +96,7 @@ public class Downloader {
 
 
     public List<String> getPeers() throws IOException {
-        int serverPort = 50505;
-        String host = "127.0.0.1";
-
-        Socket socket = new Socket(host, serverPort);
+        Socket socket = new Socket(serverIp, serverPort);
         InputStream sin = socket.getInputStream();
         OutputStream sout = socket.getOutputStream();
 
