@@ -1,6 +1,8 @@
 Учебная реализация BitTorrent протокола
 Принципы работы взяты с https://ru.wikipedia.org/wiki/BitTorrent_(%D0%BF%D1%80%D0%BE%D1%82%D0%BE%D0%BA%D0%BE%D0%BB)
 
+Как это рабоает у меня:
+http://youtu.be/jzOz2ZZCGJU
 
 Передача всех данных в текстовом формате в кодировке utf-8.
 Все передаваемые данные строки.
