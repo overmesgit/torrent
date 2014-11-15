@@ -3,6 +3,8 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,62 +14,80 @@ import java.util.List;
  */
 public class Peer {
     HashMap<Integer, HashMap<Integer, String>> dataToShare = new HashMap<>();
-    int peerPort = 50506;
-    private int serverPort = 50505;
-    private String serverIp = "127.0.0.1";
+    int peerPort;
+    private int serverPort;
+    private String serverIp;
 
-    public static void main(String[] args) throws IOException {
-        String host = "127.0.0.1";
+    public static void main(String[] args) throws IOException, InterruptedException {
+        Peer client = new Peer(args[0], Integer.parseInt(args[1]), Integer.parseInt(args[2]));
 
-        String testData = "что же ты делаешь? почему не спишь? почему заснуть не можешь?";
-        String testData2 = "что же";
-        String testData3 = "почему не спишь? почему засну";
-
-
-        Peer client = new Peer();
-
-        client.addDataToShare(testData);
-        client.addDataToShare(testData2);
-        client.addDataToShare(testData3);
-
-        client.runPeer();
-    }
-
-    public void runPeer() throws IOException {
-        registerPeer();
-        ServerSocket serverSocket = new ServerSocket(peerPort);
+        for (int i = 3; i < args.length; i++) {
+            client.addDataToShare(readFile(args[i]));
+        }
 
         while (true) {
-            Socket socket = serverSocket.accept();
-            socket.setSoTimeout(2000);
-            InputStream sin = socket.getInputStream();
-            OutputStream sout = socket.getOutputStream();
-            System.out.println(String.format("External connection from %s", socket.getRemoteSocketAddress()));
-
-            String request = readDataFromInput(sin, 1);
-            System.out.println(String.format("Request %s", request));
-            String[] splitRequest = request.split(":");
-            int requestType = splitRequest.length;
-            if (requestType == 1) {
-                String answer = String.format("%s:%s\n", splitRequest[0].trim(), checkShareData(splitRequest[0]));
-                System.out.println(String.format("Answer %s", answer));
-                sout.write(answer.getBytes(Charset.forName("UTF-8")));
-            }
-
-            if (requestType == 2) {
-                String answer = null;
-                if (checkShareData(splitRequest[0])) {
-                    answer = String.format("%s:%s:%s\nstop\n", splitRequest[0].trim(), splitRequest[1].trim(), getDataPeace(splitRequest[0], splitRequest[1]));
-                } else {
-                    answer = String.format("%s:%s\n", splitRequest[0].trim(), false);
-                }
-                System.out.println(String.format("Answer %s", answer));
-                sout.write(answer.getBytes(Charset.forName("UTF-8")));
-            }
-
-            socket.close();
-
+            client.runPeer();
         }
+    }
+
+    public Peer(String serverIp, int serverPort, int peerPort) {
+        this.serverIp = serverIp;
+        this.serverPort = serverPort;
+        this.peerPort = peerPort;
+    }
+
+    public void runPeer() throws IOException, InterruptedException {
+
+
+        ServerSocket serverSocket = null;
+        Socket socket = null;
+        try {
+            registerPeer();
+            serverSocket = new ServerSocket(peerPort);
+
+            while (true) {
+                socket = serverSocket.accept();
+                socket.setSoTimeout(2000);
+                InputStream sin = socket.getInputStream();
+                OutputStream sout = socket.getOutputStream();
+                System.out.println(String.format("External connection from %s", socket.getRemoteSocketAddress()));
+
+                String request = readDataFromInput(sin, 1);
+                System.out.println(String.format("Request %s", request));
+                String[] splitRequest = request.split(":");
+                int requestType = splitRequest.length;
+                if (requestType == 1) {
+                    String answer = String.format("%s:%s\n", splitRequest[0].trim(), checkShareData(splitRequest[0]));
+                    System.out.println(String.format("Answer %s", answer));
+                    sout.write(answer.getBytes(Charset.forName("UTF-8")));
+                }
+
+                if (requestType == 2) {
+                    String answer = null;
+                    if (checkShareData(splitRequest[0])) {
+                        answer = String.format("%s:%s:%s\nstop\n", splitRequest[0].trim(), splitRequest[1].trim(), getDataPeace(splitRequest[0], splitRequest[1]));
+                    } else {
+                        answer = String.format("%s:%s\n", splitRequest[0].trim(), false);
+                    }
+                    System.out.println(String.format("Answer %s", answer));
+                    sout.write(answer.getBytes(Charset.forName("UTF-8")));
+                }
+
+                socket.close();
+
+            }
+        } catch (Exception ex){
+            ex.printStackTrace();
+        } finally {
+            if (serverSocket != null) serverSocket.close();
+            if (socket != null) socket.close();
+            Thread.sleep(2000);
+        }
+    }
+
+    static String readFile(String path) throws IOException{
+        byte[] encoded = Files.readAllBytes(Paths.get(path));
+        return new String(encoded, Charset.forName("UTF-8"));
     }
 
     public boolean checkShareData(String sHash) {
@@ -137,13 +157,21 @@ public class Peer {
         return s.toString();
     }
 
-    public void registerPeer() throws IOException {
-        Socket socket = new Socket(serverIp, serverPort, InetAddress.getByName("0.0.0.0"), peerPort);
-        InputStream sin = socket.getInputStream();
-        OutputStream sout = socket.getOutputStream();
+    public void registerPeer() throws IOException, InterruptedException {
+        Socket socket = null;
+        try {
+            socket = new Socket(serverIp, serverPort, InetAddress.getByName("0.0.0.0"), peerPort);
+            InputStream sin = socket.getInputStream();
+            OutputStream sout = socket.getOutputStream();
 
-        sout.write(String.format("register\n", peerPort).getBytes(Charset.forName("UTF-8")));
-        socket.close();
-        System.out.println("Register");
+            sout.write(String.format("register\n", peerPort).getBytes(Charset.forName("UTF-8")));
+            socket.close();
+            System.out.println("Register");
+        } finally {
+            if (socket != null) {
+                socket.close();
+                Thread.sleep(2000);
+            }
+        }
     }
 }

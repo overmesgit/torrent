@@ -14,7 +14,7 @@ public class Downloader {
 
     public static void main(String[] args) throws IOException {
         Downloader downloader = new Downloader();
-        downloader.runDownloader("2081709300:-995075484:-1822253299:394351321:-1338556733:484850113:427097428:184964084:-1048190922:1028727964");
+        downloader.runDownloader(args[0]);
     }
 
     public void runDownloader(String torrentFile) throws IOException {
@@ -30,10 +30,14 @@ public class Downloader {
             }
         }
         Random randomGenerator = new Random();
+
+        StringBuilder result = new StringBuilder();
         for (int peace = 1; peace < splitTorrenFile.length; peace++) {
             int index = randomGenerator.nextInt(hostsWithFile.size());
-            System.out.println(getDataFromPeer(hostsWithFile.get(index), hash, splitTorrenFile[peace]));
+            result.append(getDataFromPeer(hostsWithFile.get(index), hash, splitTorrenFile[peace]));
         }
+
+        System.out.println(result);
     }
 
     public boolean haveData(String hostData, String hash) throws IOException {
@@ -45,7 +49,7 @@ public class Downloader {
 
         System.out.println(String.format("Send Request to %s for %s", hostData, hash));
         sout.write((hash + "\n").getBytes(Charset.forName("UTF-8")));
-        String data = readDataFromInput(sin, 1);
+        String data = readDataFromInput(sin, 1, true);
         System.out.println(String.format("Received Answer from %s %s", hostData, data));
         if (data.split(":")[1].trim().equals("true")) {
             return true;
@@ -63,24 +67,27 @@ public class Downloader {
 
         System.out.println(String.format("Send Request to %s for %s:%s", hostData, hash, subHash));
         sout.write(String.format("%s:%s\n", hash, subHash).getBytes(Charset.forName("UTF-8")));
-        String data = readDataFromInput(sin, 1000);
+        String data = readDataFromInput(sin, 1000, true);
         System.out.println(String.format("Received Answer from %s:  %s", hostData, data));
-        return data;
+        return data.split(":")[2];
     }
 
-    public String readDataFromInput(InputStream sin, int linesToRead) throws IOException {
+    public String readDataFromInput(InputStream sin, int linesToRead, boolean addTerminator) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(sin));
         StringBuilder s = new StringBuilder();
         for(int i = 0; i < linesToRead; i++) {
             String currentData = br.readLine();
-            if(currentData == null || currentData.trim().length() == 0 || currentData.equals("stop")) {
+            if(currentData == null || currentData.equals("stop")) {
                 break;
             } else {
-                s.append(currentData + "\n");
+                currentData += addTerminator ? "\n":"";
+                s.append(currentData);
             }
         }
         return s.toString();
     }
+
+
 
     public List<String> getPeers() throws IOException {
         int serverPort = 50505;
@@ -93,7 +100,7 @@ public class Downloader {
         System.out.println("Get Peers");
         sout.write("get\n".getBytes(Charset.forName("UTF-8")));
 
-        String sPeers = readDataFromInput(sin, 1000);
+        String sPeers = readDataFromInput(sin, 1000, true);
         socket.close();
         ArrayList<String> result = new ArrayList<String>();
         for (String peer: sPeers.split("\n")) {
